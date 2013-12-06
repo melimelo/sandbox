@@ -23,8 +23,9 @@ public class WordsGridAdapter extends BaseAdapter {
 	}
 
 	private Context mContext;
-	private WordsGrid mWordsGrid = new WordsGrid(3, 3);
+	private WordsGrid mWordsGrid = new WordsGrid(16, 3);
 	private ArrayList<Integer> selectedItems;
+	public ArrayList<Integer> getSelectedItems(){return this.selectedItems;}
 
 	
 	
@@ -68,6 +69,7 @@ public class WordsGridAdapter extends BaseAdapter {
 
 		} else {
 			textView = (TextView) convertView;
+			textView.setText(Integer.toString(position)+"N");
 		}
 		return textView;
 	}
@@ -105,10 +107,10 @@ public class WordsGridAdapter extends BaseAdapter {
 	}
 	
 	private boolean areElementsAdjascent(int a, int b) {
-		int rowA = a / mWordsGrid.getXCount();
-		int columnA = a - (rowA * mWordsGrid.getXCount());
-		int rowB = b / mWordsGrid.getXCount();
-		int columnB = b - (rowB*mWordsGrid.getXCount());
+		int rowA = a / mWordsGrid.getYCount();
+		int columnA = a - (rowA * mWordsGrid.getYCount());
+		int rowB = b / mWordsGrid.getYCount();
+		int columnB = b - (rowB*mWordsGrid.getYCount());
 		Log.d(null,Integer.toString(a)+":"+Integer.toString(rowA)+Integer.toString(columnA)+"/"+
 				Integer.toString(b)+":"+Integer.toString(rowB)+Integer.toString(columnB)+"/"+
 				(((Math.abs(rowA - rowB)<2) && (Math.abs(columnA - columnB)<2))?"adjascent":"not adjascent"));

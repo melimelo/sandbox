@@ -26,7 +26,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 
 	private static final float STROKE_WIDTH = 5f;
 
-	List<Point> points = new ArrayList<Point>();
+	//List<Point> points = new ArrayList<Point>();
 	Point currentPoint = null;
 	Paint paint = new Paint();
 	ArrayList<Path> pathsList;
@@ -58,14 +58,19 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		composedPath.rewind();
 		currentPath.rewind();
 		boolean first = true;
-		for (Point point : points) {
-			if (first) {
-				first = false;
-				currentPath.moveTo(point.x, point.y);
-			} else {
-				currentPath.lineTo(point.x, point.y);
+		if (adapter != null)
+			for (Integer childIndex : adapter.getSelectedItems()) {
+				int x = getChildAt(childIndex-getFirstVisiblePosition()).getRight()
+						- (getChildAt(childIndex-getFirstVisiblePosition()).getWidth() / 2);
+				int y = getChildAt(childIndex-getFirstVisiblePosition()).getBottom()
+						- (getChildAt(childIndex-getFirstVisiblePosition()).getHeight() / 2);
+				if (first) {
+					first = false;
+					currentPath.moveTo(x, y);
+				} else {
+					currentPath.lineTo(x, y);
+				}
 			}
-		}
 
 		if(currentPoint!=null)
 			currentPath.lineTo(currentPoint.x, currentPoint.y);
@@ -79,9 +84,8 @@ public class WordsGridView extends GridView implements OnTouchListener {
 	public boolean onTouch(View view, MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			WordsGridAdapter adapter = (WordsGridAdapter) getAdapter();
+			this.adapter = (WordsGridAdapter) getAdapter();
 			adapter.startNewSelection();
-			points.clear();
 			onGridPointTouched(event.getX(),event.getY());
 			return true;
 		case MotionEvent.ACTION_MOVE:
@@ -93,6 +97,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 			return true;
 		case MotionEvent.ACTION_UP:
 			currentPoint = null;
+			return true;
 		default:
 			return true;
 		}
@@ -112,7 +117,6 @@ public class WordsGridView extends GridView implements OnTouchListener {
 			PointAction pointAction = adapter.checkSelectedItem(selectedItemIndex);
 			switch (pointAction) {
 			case AddNewPoint:
-				points.add(new Point(x,y));
 				if(currentPoint == null){//on First Touch Down
 					currentPoint = new Point(x,y);
 				}
@@ -122,8 +126,10 @@ public class WordsGridView extends GridView implements OnTouchListener {
 				invalidate();
 				break;
 			case RemoveLast:
-				points.remove(points.size() - 1);
-				currentPoint.setXY(points.get(points.size()-1).getX(),points.get(points.size()-1).getY());
+				int newLastChild = adapter.getSelectedItems().get(adapter.getSelectedItems().size()-1);
+				x = getChildAt(newLastChild).getRight() - (getChildAt(newLastChild).getWidth() / 2);
+				y = getChildAt(newLastChild).getBottom() - (getChildAt(newLastChild).getHeight() / 2);
+				currentPoint.setXY(x,y);
 				invalidate();
 				break;
 			case DoNothing:
@@ -148,7 +154,8 @@ public class WordsGridView extends GridView implements OnTouchListener {
 	}
 
 	public void clear() {
-		points.clear();
+		/**TODO*/
+		adapter.startNewSelection();
 		currentPoint = null;
 		invalidate();
 	}
