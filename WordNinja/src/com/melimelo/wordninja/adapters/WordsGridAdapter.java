@@ -23,7 +23,7 @@ public class WordsGridAdapter extends BaseAdapter {
 	}
 
 	private Context mContext;
-	private WordsGrid mWordsGrid = new WordsGrid(16, 3);
+	private WordsGrid mWordsGrid = new WordsGrid(6, 7);
 	private ArrayList<Integer> selectedItems;
 	public ArrayList<Integer> getSelectedItems(){return this.selectedItems;}
 
@@ -44,6 +44,14 @@ public class WordsGridAdapter extends BaseAdapter {
 		return mWordsGrid.getXCount() * mWordsGrid.getYCount();
 	}
 
+	public int getNbColumns(){
+		return mWordsGrid.getXCount();
+	}
+	
+	public int getNbRows(){
+		return mWordsGrid.getYCount();
+	}
+	
 	@Override
 	public Object getItem(int position) {
 		return mWordsGrid.getItem(position);
@@ -106,15 +114,22 @@ public class WordsGridAdapter extends BaseAdapter {
 		}
 	}
 	
+	private boolean isDiagonaleAllowed(){
+		return false;
+	}
+
 	private boolean areElementsAdjascent(int a, int b) {
 		int rowA = a / mWordsGrid.getYCount();
 		int columnA = a - (rowA * mWordsGrid.getYCount());
 		int rowB = b / mWordsGrid.getYCount();
 		int columnB = b - (rowB*mWordsGrid.getYCount());
-		Log.d(null,Integer.toString(a)+":"+Integer.toString(rowA)+Integer.toString(columnA)+"/"+
-				Integer.toString(b)+":"+Integer.toString(rowB)+Integer.toString(columnB)+"/"+
-				(((Math.abs(rowA - rowB)<2) && (Math.abs(columnA - columnB)<2))?"adjascent":"not adjascent"));
-		return ((Math.abs(rowA - rowB)<2) && (Math.abs(columnA - columnB)<2));
+
+		if(isDiagonaleAllowed()){
+			return ((Math.abs(rowA - rowB)<2) && (Math.abs(columnA - columnB)<2));
+		}
+		else{
+			return (((Math.abs(rowA - rowB)) + (Math.abs(columnA - columnB))) < 2);
+		}
 	}
 
 	public void startNewSelection(){
