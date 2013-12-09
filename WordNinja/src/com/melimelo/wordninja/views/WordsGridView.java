@@ -17,6 +17,7 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridView;
@@ -45,16 +46,27 @@ public class WordsGridView extends GridView implements OnTouchListener {
 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeWidth(STROKE_WIDTH);
-		paint.setColor(Color.BLACK);
+		paint.setStrokeWidth(STROKE_WIDTH*2);
+		paint.setColor(Color.RED);
 
 		currentPath = new Path();
 		composedPath = new Path();
 		composedPath.addPath(currentPath);
+		
+		setGravity(Gravity.CENTER_VERTICAL);
 	}
 
+
+	
+	
 	@Override
 	public void onDraw(Canvas canvas) {
+		Log.d("onDraw",Integer.toString(getNumColumns())+
+				Integer.toString(getNumColumns())+"/"+
+				Integer.toString(getColumnWidth())+"/"+
+				Integer.toString(getVerticalSpacing())+"/"+
+				Integer.toString(getHorizontalSpacing())
+				);
 		composedPath.rewind();
 		currentPath.rewind();
 		boolean first = true;
@@ -200,4 +212,5 @@ public class WordsGridView extends GridView implements OnTouchListener {
 			return ((p instanceof Point) && (((Point) p).x == x) && (((Point) p).y == y));
 		}
 	}
+
 }

@@ -19,8 +19,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.activity_main);
 
 		this.wordsGridView = (WordsGridView) findViewById(R.id.wordsGridview);
-		wordsGridView.setNumColumns(6);
-		wordsGridView.setNumColumns(7);
+		//wordsGridView.setNumColumns(6);
+		//wordsGridView.setNumColumns(7);
+		//wordsGridView.initLayout(6,7);
 		wordsGridView.setAdapter(new WordsGridAdapter(this));
 
 		Button clearButton = (Button) findViewById(R.id.clearbutton);
