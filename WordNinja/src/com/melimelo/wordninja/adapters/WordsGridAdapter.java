@@ -6,9 +6,7 @@ import com.melimelo.wordninja.model.WordsGrid;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +31,17 @@ public class WordsGridAdapter extends BaseAdapter {
 	private ArrayList<Integer> selectedItems;
 	public ArrayList<Integer> getSelectedItems(){return this.selectedItems;}
 
+	private boolean isDiagonaleAllowed(){
+		return true;
+	}
+
+	private boolean isNonUniformAllowed(){
+		return false;
+	}
 	
+	private boolean isMultiPointSelectionAllowed(){
+		return true;
+	}
 	
 	public WordsGridAdapter(Context context) {
 		this.mContext = context;
@@ -79,16 +87,7 @@ public class WordsGridAdapter extends BaseAdapter {
 		((GridView) parent).setVerticalSpacing(itemWidth);
 		((GridView) parent).setHorizontalSpacing(itemHeight);
 		
-		
 		parent.setPadding(itemWidth, itemHeight, itemWidth, itemHeight);
-		
-		/*Log.d("InitLayout",Integer.toString(((GridView) parent).getNumColumns())+"/"+
-				Integer.toString(((GridView) parent).getColumnWidth())+"/"+
-				Integer.toString(((GridView) parent).getVerticalSpacing())+"/"+
-				Integer.toString(((GridView) parent).getHorizontalSpacing())
-				);*/
-		
-		
 	}
 	
 	
@@ -102,61 +101,35 @@ public class WordsGridAdapter extends BaseAdapter {
 		if (convertView == null) {
 			textView = new TextView(mContext);
 			textView.setLayoutParams(new GridView.LayoutParams(itemWidth, itemHeight));
-			Log.d("getView", Integer.toString(position)+"/"+Integer.toString(itemWidth));
 			textView.setGravity(Gravity.CENTER);
 			
-			//textView.setPadding(5, 5, 5, 5);
-			/*Log.d("getView",
-					"text created:positon" + Integer.toString(position));*/
 			textView.setText(Integer.toString(position));
 			textView.setBackgroundColor( mContext.getResources().getColor(android.R.color.tertiary_text_light));
-			Log.d("LineHeight1",Integer.toString(position)+"/"+
-					Float.toString(textView.getTextSize())+"/"+
-					Integer.toString(textView.getLineHeight())+"/"+
-					Integer.toString(textView.getMeasuredHeight())+"/"+
-					Integer.toString(itemHeight));
-			
-			//if(textView.getTextSize()<50)
-			if (itemHeight > 0)
+			if (itemHeight > 0)//itemHeight = 0 if grid not initialized yet
 				while (textView.getLineHeight() > itemHeight) {
 
 					textView.setTextSize((float) (textView.getTextSize() * 0.6));
 				}
-			Log.d("LineHeight",Integer.toString(position)+"/"+
-					Float.toString(textView.getTextSize())+"/"+
-					Integer.toString(textView.getLineHeight())+"/"+
-					Integer.toString(itemHeight));
-			
 		} else {
 			textView = (TextView) convertView;
 			textView.setText(Integer.toString(position)+"N");
 			textView.setLayoutParams(new GridView.LayoutParams(itemWidth, itemWidth));
-			Log.d("LineHeight2",Integer.toString(position)+"/"+
-					Float.toString(textView.getTextSize())+"/"+
-					Integer.toString(textView.getLineHeight())+"/"+
-					Integer.toString(itemHeight));
-
-
 			if (itemHeight > 0)
 				while (textView.getLineHeight() > itemHeight) {
 
 					textView.setTextSize((float) (textView.getTextSize() * 0.6));
 				}
-			//textView.setTextSize(textView.getTextSize()/2);
-			textView.setGravity(Gravity.LEFT|Gravity.TOP);
-			textView.setTextColor(Color.BLACK);
-			Log.d("text",textView.getText().toString());
-			Log.d("text",Float.toString(textView.getTextSize()));
-		
 		}
 		return textView;
 	}
 
 	
 	public PointAction checkSelectedItem(int selectedItemIndex) {
-		if((selectedItems.size()>0) && 
-				(!areElementsAdjascent(selectedItemIndex,selectedItems.get(selectedItems.size()-1))))
+		if((selectedItems.size()>0) && (!isValid(selectedItemIndex)))
 		{
+			if(checkMultiPointValidity(selectedItemIndex)){
+				return PointAction.AddNewPoint;
+			}
 			Log.d("", Integer.toString(selectedItemIndex) + "/" + 
 					Integer.toString(selectedItems.get(selectedItems.size()-1)) + " not adjascent.");
 			return PointAction.DoNothing;
@@ -185,10 +158,122 @@ public class WordsGridAdapter extends BaseAdapter {
 		}
 	}
 	
-	private boolean isDiagonaleAllowed(){
-		return true;
+	public boolean checkMultiPointValidity(int selectedItemIndex){
+		boolean vReturn = true;
+		
+		vReturn &= ((selectedItems.size()>0) && (selectedItemIndex != selectedItems.get(selectedItems.size()-1)));
+		if(vReturn == false){
+			Log.d("checkMultiPointValidity","not different");
+		}
+		vReturn &= (isMultiPointSelectionAllowed() &&
+				areElementsInSameLine(selectedItems.get(selectedItems.size()-1),selectedItemIndex));
+		if(vReturn == false){
+			Log.d("checkMultiPointValidity","isMultiPointSelectionAllowed");
+		}
+		if((!isNonUniformAllowed()) && (selectedItems.size()>1))
+			vReturn &= areElementsUniform(	selectedItems.get(selectedItems.size()-2),
+											selectedItems.get(selectedItems.size()-1),
+											selectedItemIndex);
+
+		if(vReturn == false){
+			Log.d("checkMultiPointValidity","isNonUniformAllowed");
+		}
+		if(vReturn == true){
+			Log.d("checkMultiPointValidity","addMultiPoints");
+		}
+		if(vReturn)
+			addMultiPoints(selectedItems.get(selectedItems.size()-1),selectedItemIndex);
+		return vReturn;
+	}
+		
+		
+	private void addMultiPoints(int a, int b) {
+		
+		int columnA = a / mWordsGrid.getXCount();
+		int rowA = a - (columnA * mWordsGrid.getXCount());
+		int columnB = b / mWordsGrid.getXCount();
+		int rowB = b - (columnB*mWordsGrid.getXCount());
+		
+		int rowC = -1;
+		int columnC = -1;
+		
+		Log.d("addMultiPoints", Integer.toString(a) + "/" +Integer.toString(b));
+		
+		if (rowA == rowB) {
+			rowC = rowA;
+			for (int i = 1; i < Math.abs(columnA - columnB); i++) {
+				columnC = Math.min(columnA,columnB) + i;
+				selectedItems.add(rowC + (mWordsGrid.getXCount() * columnC));
+				Log.d("addMultiPoints1", Integer.toString(selectedItems
+						.get(selectedItems.size() - 1)));
+			}
+		} else if (columnA == columnB) {
+			columnC = columnA;
+			for (int i = 1; i < Math.abs(rowA - rowB); i++) {
+				rowC = Math.min(rowA, rowB) + i;
+				selectedItems.add(rowC + (mWordsGrid.getXCount() * columnC));
+				Log.d("addMultiPoints2", Integer.toString(selectedItems
+						.get(selectedItems.size() - 1)));
+			}
+		} else if (Math.abs(rowA - rowB) == Math.abs(columnA - columnB)) {
+			for (int i = 1; i < Math.abs(columnA - columnB); i++) 
+				{
+					rowC = Math.min(rowA, rowB)+i;
+					columnC = (rowA < rowB ? columnA : columnB);
+					columnC += ((rowA < rowB) == (columnA < columnB)) ? i : -i;
+					selectedItems.add(rowC + (mWordsGrid.getXCount() * columnC));
+					
+					Log.d("addMultiPoints3", Integer.toString(selectedItems
+							.get(selectedItems.size() - 1)));
+				}
+		}
 	}
 
+
+
+	
+	
+	private boolean isValid(int selectedItemIndex){
+		boolean vReturn = ((selectedItems.size()>0) && 
+				(areElementsAdjascent(selectedItemIndex,selectedItems.get(selectedItems.size()-1))));//Must be adjascent
+		
+		if((!isNonUniformAllowed()) && (selectedItems.size()>1))
+			vReturn &= areElementsUniform(	selectedItems.get(selectedItems.size()-2),
+											selectedItems.get(selectedItems.size()-1),
+											selectedItemIndex);
+		return vReturn;
+	}
+	
+	private boolean areElementsInSameLine(int a, int b){
+		
+		int columnA = a / mWordsGrid.getXCount();
+		int rowA = a - (columnA * mWordsGrid.getXCount());
+		int columnB = b / mWordsGrid.getXCount();
+		int rowB = b - (columnB*mWordsGrid.getXCount());
+		
+		boolean vReturn = false;
+		
+		Log.d("areElementsInSameLine",Integer.toString(a)+"/"+Integer.toString(b)+
+				Integer.toString(rowA)+"/"+Integer.toString(rowB)+
+				Integer.toString(columnA)+"/"+Integer.toString(columnB));
+		if(isDiagonaleAllowed()){
+			vReturn = (Math.abs(rowA - rowB) == Math.abs(columnA - columnB));
+		}
+		vReturn |= ((rowA == rowB)||(columnA==columnB));
+		
+		return vReturn;
+		
+	}
+	private boolean areElementsUniform(int a, int b, int c){
+		int columnA = a / mWordsGrid.getXCount();
+		int rowA = a - (columnA * mWordsGrid.getXCount());
+		int columnB = b / mWordsGrid.getXCount();
+		int rowB = b - (columnB*mWordsGrid.getXCount());
+		int columnC = c / mWordsGrid.getXCount();
+		int rowC = c - (columnC*mWordsGrid.getXCount());
+		return (((rowB - rowA) == (rowC - rowB))&&((columnB - columnA) == (columnC - columnB)));
+	}
+	
 	private boolean areElementsAdjascent(int a, int b) {
 		int columnA = a / mWordsGrid.getXCount();
 		int rowA = a - (columnA * mWordsGrid.getXCount());

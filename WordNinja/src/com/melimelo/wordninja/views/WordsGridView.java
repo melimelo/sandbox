@@ -48,6 +48,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(STROKE_WIDTH*2);
 		paint.setColor(Color.RED);
+		paint.setAlpha(150);
 
 		currentPath = new Path();
 		composedPath = new Path();
@@ -59,14 +60,30 @@ public class WordsGridView extends GridView implements OnTouchListener {
 
 	
 	
+//	/*@Override
+//	public void onDraw(Canvas canvas) {
+//		/*Log.d("onDraw",Integer.toString(getNumColumns())+
+//				Integer.toString(getNumColumns())+"/"+
+//				Integer.toString(getColumnWidth())+"/"+
+//				Integer.toString(getVerticalSpacing())+"/"+
+//				Integer.toString(getHorizontalSpacing())
+//				);*/
+//		
+//
+//		// canvas.clipPath(path, paint);
+//	}*/
+	
 	@Override
-	public void onDraw(Canvas canvas) {
-		Log.d("onDraw",Integer.toString(getNumColumns())+
+	public void dispatchDraw (Canvas canvas){
+		Log.d("dispatchDraw",Integer.toString(getNumColumns())+
 				Integer.toString(getNumColumns())+"/"+
 				Integer.toString(getColumnWidth())+"/"+
 				Integer.toString(getVerticalSpacing())+"/"+
 				Integer.toString(getHorizontalSpacing())
 				);
+		
+		super.dispatchDraw(canvas);
+		
 		composedPath.rewind();
 		currentPath.rewind();
 		boolean first = true;
@@ -89,8 +106,6 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		
 		composedPath.addPath(currentPath);
 		canvas.drawPath(composedPath, paint);
-
-		// canvas.clipPath(path, paint);
 	}
 
 	public boolean onTouch(View view, MotionEvent event) {
@@ -109,6 +124,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 			return true;
 		case MotionEvent.ACTION_UP:
 			currentPoint = null;
+			invalidate();
 			return true;
 		default:
 			return true;
