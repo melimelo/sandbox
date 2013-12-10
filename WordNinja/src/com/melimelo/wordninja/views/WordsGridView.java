@@ -25,16 +25,17 @@ import android.view.View.OnTouchListener;
 
 public class WordsGridView extends GridView implements OnTouchListener {
 
-	private static final float STROKE_WIDTH = 5f;
+	private static final float STROKE_WIDTH = 2f;
 
-	//List<Point> points = new ArrayList<Point>();
+	private static final float TOUCH_WIDTH_COEFF = 0.5f;
+	
 	Point currentPoint = null;
 	Paint paint = new Paint();
 	ArrayList<Path> pathsList;
 	Path currentPath = null;
 	Path composedPath = null;
 	WordsGridAdapter adapter = null;
-
+	
 	public WordsGridView(Context context, AttributeSet attributeSet) {
 
 		super(context, attributeSet);
@@ -47,7 +48,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(STROKE_WIDTH*2);
-		paint.setColor(Color.RED);
+		paint.setColor(Color.WHITE);
 		paint.setAlpha(150);
 
 		currentPath = new Path();
@@ -57,22 +58,6 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		setGravity(Gravity.CENTER_VERTICAL);
 	}
 
-
-	
-	
-//	/*@Override
-//	public void onDraw(Canvas canvas) {
-//		/*Log.d("onDraw",Integer.toString(getNumColumns())+
-//				Integer.toString(getNumColumns())+"/"+
-//				Integer.toString(getColumnWidth())+"/"+
-//				Integer.toString(getVerticalSpacing())+"/"+
-//				Integer.toString(getHorizontalSpacing())
-//				);*/
-//		
-//
-//		// canvas.clipPath(path, paint);
-//	}*/
-	
 	@Override
 	public void dispatchDraw (Canvas canvas){
 		Log.d("dispatchDraw",Integer.toString(getNumColumns())+
@@ -177,12 +162,13 @@ public class WordsGridView extends GridView implements OnTouchListener {
 	}
 
 	private boolean contains(View view, float f, float g) {
-		return ((g > view.getTop()) && (g < view.getBottom())
-				&& (f > view.getLeft()) && (f < view.getRight()));
+		return ((g > (view.getTop()+(view.getHeight()/2*(1-TOUCH_WIDTH_COEFF))))) && 
+				(g < (view.getBottom()-(view.getHeight()/2*(1-TOUCH_WIDTH_COEFF)))) && 
+				(f > (view.getLeft()+(view.getWidth()/2*(1-TOUCH_WIDTH_COEFF)))) && 
+				(f < (view.getRight()-(view.getWidth()/2*(1-TOUCH_WIDTH_COEFF))));
 	}
 
 	public void clear() {
-		/**TODO*/
 		adapter.startNewSelection();
 		currentPoint = null;
 		invalidate();

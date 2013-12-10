@@ -1,24 +1,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_root"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
-    <Button
-        android:id="@+id/clearbutton"
+<!--     <Button -->
+<!--         android:id="@+id/clearbutton" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Clear" /> -->
+
+    <TextView
+        android:id="@+id/wordTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Clear" />
-
+        android:text="Text" />
     
         <com.melimelo.wordninja.views.WordsGridView
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/wordsGridview"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@+id/clearbutton"
+            android:layout_below="@+id/wordTextView"
             android:layout_above="@+id/editText1"
+            android:animateLayoutChanges="true"
             android:gravity="center"/>
 <!--             android:horizontalSpacing="10dp" -->
 <!--             android:numColumns="auto_fit" -->
