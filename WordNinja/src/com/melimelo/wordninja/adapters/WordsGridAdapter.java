@@ -21,17 +21,13 @@ public class WordsGridAdapter extends BaseAdapter {
 		AddNewPoint, RemoveLast, DoNothing
 	}
 
-	private int nbRows = 6;
-	private int nbColumns = 7;
+	private int nbRows = -1;
+	private int nbColumns = -1;
 	private double spacingCoeff = 0;
 	private Context mContext;
 	private WordsGrid mWordsGrid = null;
 
 	private ArrayList<Integer> selectedItems;
-
-	public ArrayList<Integer> getSelectedItems() {
-		return this.selectedItems;
-	}
 
 	private boolean isDiagonaleAllowed() {
 		return true;
@@ -45,6 +41,14 @@ public class WordsGridAdapter extends BaseAdapter {
 		return true;
 	}
 
+	private boolean isReuseAllowed(){
+		return false;
+	}
+	
+	private boolean isGoBackAllowed(){
+		return false;
+	}
+	
 	public WordsGridAdapter(Context context) {
 		this.mContext = context;
 	}
@@ -76,7 +80,12 @@ public class WordsGridAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position / mWordsGrid.getXCount();
 	}
+	
+	public ArrayList<Integer> getSelectedItems() {
+		return this.selectedItems;
+	}
 
+	
 	public void initLayout(ViewGroup parent, int i, int j) {
 		int itemWidth = (int) (((GridView) parent).getWidth() / (i
 				* (1 + spacingCoeff)));
@@ -112,7 +121,7 @@ public class WordsGridAdapter extends BaseAdapter {
 					itemHeight));
 			textView.setGravity(Gravity.CENTER);
 			textView.setText(mWordsGrid.getItem(position).toString());
-			textView.setBackgroundColor(((position % 2 > 0) ? mContext.getResources().getColor(R.color.light_green) : 
+			textView.setBackgroundColor(((position % 3 > 0) ? mContext.getResources().getColor(R.color.light_green) : 
 											mContext.getResources().getColor(R.color.dark_green)));
 			textView.setTextColor(mContext.getResources().getColor(android.R.color.white));
 			if (itemHeight > 0)// itemHeight = 0 if grid not initialized yet
@@ -135,6 +144,8 @@ public class WordsGridAdapter extends BaseAdapter {
 	}
 
 	public PointAction checkSelectedItem(int selectedItemIndex) {
+		if((!isReuseAllowed())&&(selectedItems.contains(selectedItemIndex)))
+			return PointAction.DoNothing;
 		if ((selectedItems.size() > 0) && (!isValid(selectedItemIndex))) {
 			if (checkMultiPointValidity(selectedItemIndex)) {
 				notifyDataSetChanged();
@@ -148,13 +159,20 @@ public class WordsGridAdapter extends BaseAdapter {
 			} else if ((selectedItems.size() > 1)
 					&& (selectedItems.get(selectedItems.size() - 2)
 							.equals(selectedItemIndex))) {
-				selectedItems.remove(selectedItems.size() - 1);
-				notifyDataSetChanged();
-				return PointAction.RemoveLast;
+				if (isGoBackAllowed()) {
+					selectedItems.remove(selectedItems.size() - 1);
+					notifyDataSetChanged();
+					return PointAction.RemoveLast;
+				} else {
+					return PointAction.DoNothing;
+				}
 			} else {// Boucle
-				selectedItems.add(selectedItemIndex);
-				notifyDataSetChanged();
-				return PointAction.AddNewPoint;
+				if (isGoBackAllowed()) {
+					selectedItems.add(selectedItemIndex);
+					notifyDataSetChanged();
+					return PointAction.AddNewPoint;
+				}
+				return PointAction.DoNothing;
 			}
 		} else {
 			selectedItems.add(selectedItemIndex);
@@ -207,9 +225,13 @@ public class WordsGridAdapter extends BaseAdapter {
 					: selectedItems.size() - 1;
 			if (allpreviouselementsexist && (duplicatedStartIndex > -1)
 					&& (selectedItems.get(duplicatedStartIndex) == c)) {
+				if(!isGoBackAllowed())
+					return;
 				for (int j = selectedItems.size() - 1; j > duplicatedStartIndex - 1; j--)
 					selectedItems.remove(j);
 			} else {
+				if((!isReuseAllowed())&&(selectedItems.contains(c)))
+					return;
 				allpreviouselementsexist = false;
 				selectedItems.add(c);
 			}

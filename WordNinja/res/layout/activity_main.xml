@@ -16,7 +16,7 @@
         android:id="@+id/wordTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Text" />
+         />
     
         <com.melimelo.wordninja.views.WordsGridView
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -24,7 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_below="@+id/wordTextView"
-            android:layout_above="@+id/editText1"
+            android:layout_above="@+id/clearbutton"
             android:animateLayoutChanges="true"
             android:gravity="center"/>
 <!--             android:horizontalSpacing="10dp" -->
@@ -34,14 +34,22 @@
 <!--             android:verticalSpacing="10dp"  -->
 
 
-    <EditText
-        android:id="@+id/editText1"
-        android:layout_width="match_parent"
+<!--     <EditText -->
+<!--         android:id="@+id/editText1" -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentBottom="true" -->
+<!--         android:ems="10" > -->
+
+<!--         <requestFocus /> -->
+<!--     </EditText> -->
+
+    
+        <Button
+        android:id="@+id/clearbutton"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:ems="10" >
-
-        <requestFocus />
-    </EditText>
-
+        android:text="Clear" />
+        
 </RelativeLayout>

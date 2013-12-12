@@ -21,8 +21,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private WordsGridView wordsGridView;
 	private DataSetObserver gridDataSetObserver;
 	
-	private int Rows = 6;
-	private int Columns = 7;
+	private int Rows = 5;
+	private int Columns = 4;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

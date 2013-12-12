@@ -30,7 +30,7 @@ public final class R {
     }
     public static final class id {
         public static final int action_settings=0x7f090004;
-        public static final int editText1=0x7f090003;
+        public static final int clearbutton=0x7f090003;
         public static final int layout_root=0x7f090000;
         public static final int wordTextView=0x7f090001;
         public static final int wordsGridview=0x7f090002;
