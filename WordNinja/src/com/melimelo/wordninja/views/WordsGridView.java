@@ -27,7 +27,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 
 	private static final float STROKE_WIDTH = 2f;
 
-	private static final float TOUCH_WIDTH_COEFF = 0.5f;
+	private static final float TOUCH_WIDTH_COEFF = 0.8f;
 	
 	Point currentPoint = null;
 	Paint paint = new Paint();
@@ -58,7 +58,7 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		setGravity(Gravity.CENTER_VERTICAL);
 	}
 
-	@Override
+	/*@Override
 	public void dispatchDraw (Canvas canvas){
 		Log.d("dispatchDraw",Integer.toString(getNumColumns())+
 				Integer.toString(getNumColumns())+"/"+
@@ -91,7 +91,9 @@ public class WordsGridView extends GridView implements OnTouchListener {
 		
 		composedPath.addPath(currentPath);
 		canvas.drawPath(composedPath, paint);
-	}
+	}*/
+	
+	
 
 	public boolean onTouch(View view, MotionEvent event) {
 		switch (event.getAction()) {

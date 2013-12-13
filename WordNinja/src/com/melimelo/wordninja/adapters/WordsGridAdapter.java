@@ -1,6 +1,8 @@
 package com.melimelo.wordninja.adapters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.melimelo.wordninja.R;
 import com.melimelo.wordninja.model.WordsGrid;
@@ -26,6 +28,7 @@ public class WordsGridAdapter extends BaseAdapter {
 	private double spacingCoeff = 0;
 	private Context mContext;
 	private WordsGrid mWordsGrid = null;
+	private HashMap<Integer, View> childViews = new HashMap<Integer, View>();
 
 	private ArrayList<Integer> selectedItems;
 
@@ -121,8 +124,7 @@ public class WordsGridAdapter extends BaseAdapter {
 					itemHeight));
 			textView.setGravity(Gravity.CENTER);
 			textView.setText(mWordsGrid.getItem(position).toString());
-			textView.setBackgroundColor(((position % 3 > 0) ? mContext.getResources().getColor(R.color.light_green) : 
-											mContext.getResources().getColor(R.color.dark_green)));
+			textView.setBackgroundColor(mContext.getResources().getColor(R.color.light_green));
 			textView.setTextColor(mContext.getResources().getColor(android.R.color.white));
 			if (itemHeight > 0)// itemHeight = 0 if grid not initialized yet
 				while (textView.getLineHeight() > itemHeight) {
@@ -140,6 +142,7 @@ public class WordsGridAdapter extends BaseAdapter {
 					textView.setTextSize((float) (textView.getTextSize() * 0.6));
 				}
 		}
+		childViews.put(position, textView);
 		return textView;
 	}
 
@@ -148,6 +151,7 @@ public class WordsGridAdapter extends BaseAdapter {
 			return PointAction.DoNothing;
 		if ((selectedItems.size() > 0) && (!isValid(selectedItemIndex))) {
 			if (checkMultiPointValidity(selectedItemIndex)) {
+				updateItems();
 				notifyDataSetChanged();
 				return PointAction.AddNewPoint;
 			}
@@ -161,6 +165,7 @@ public class WordsGridAdapter extends BaseAdapter {
 							.equals(selectedItemIndex))) {
 				if (isGoBackAllowed()) {
 					selectedItems.remove(selectedItems.size() - 1);
+					updateItems();
 					notifyDataSetChanged();
 					return PointAction.RemoveLast;
 				} else {
@@ -169,6 +174,7 @@ public class WordsGridAdapter extends BaseAdapter {
 			} else {// Boucle
 				if (isGoBackAllowed()) {
 					selectedItems.add(selectedItemIndex);
+					updateItems();
 					notifyDataSetChanged();
 					return PointAction.AddNewPoint;
 				}
@@ -176,8 +182,22 @@ public class WordsGridAdapter extends BaseAdapter {
 			}
 		} else {
 			selectedItems.add(selectedItemIndex);
+			updateItems();
 			notifyDataSetChanged();
 			return PointAction.AddNewPoint;
+		}
+	}
+
+	private void updateItems() {
+		for(int position=0; position<getCount();position++){
+			TextView textView = (TextView) childViews.get(position);
+			if(textView != null)
+			if(selectedItems.contains(position)){
+				textView.setBackgroundColor(mContext.getResources().getColor(R.color.dark_green));
+			}
+			else{
+				textView.setBackgroundColor(mContext.getResources().getColor(R.color.light_green));
+			}
 		}
 	}
 
